@@ -1,0 +1,460 @@
+{
+  "l": {
+    "st": "Status",
+    "ge": "General",
+    "ne": "Network",
+    "zi": "Zigbee",
+    "mq": "MQTT",
+    "vp": "VPN",
+    "se": "Security",
+    "to": "Tools",
+    "ab": "About",
+    "lo": "Logout"
+  },
+  "p": {
+    "st": {
+      "dic": {
+        "tt": "Device",
+        "dm": "Model",
+        "et": "Temperature",
+        "ef": "Processor",
+        "cs": "cores",
+        "mhz": "MHz",
+        "efs": "Memory",
+        "mb": "Mb",
+        "ehs": "Heap",
+        "kb": "KiB",
+        "efti": "internal",
+        "efte": "external",
+        "ens": "NV storage",
+        "ent": "entries",
+        "efss": "File system",
+        "du": "Operating time",
+        "lt": "Local time",
+        "et1": "1W Temperature"
+      },
+      "te": "Ethernet",
+      "tw": "WiFi",
+      "tm": "MQTT",
+      "wgc": {
+        "tt": "WireGuard",
+        "lip": "Local IP address",
+        "ed": "Endpoint address",
+        "pip": "Peer IP address"
+      },
+      "tvh": "Husarnet",
+      "wc": {
+        "mcl": "Client",
+        "map": "AP"
+      },
+      "zbc": {
+        "op": "Mode",
+        "opn": "Zigbee-Network",
+        "opu": "Zigbee-USB",
+        "scc": "Socket",
+        "sccn": "No connection",
+        "sccy": "{{count}} clients",
+        "su": "Connection time",
+        "zfs": "Flash size",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "Firmware",
+        "hv": "CPU-Info",
+        "r": "Role"
+      },
+      "zr": {
+        "c": "Coordinator",
+        "r": "Router",
+        "t": "OpenTread"
+      }
+    },
+    "ge": {
+      "desc": "Settings",
+      "host": {
+        "n": "Hostname",
+        "ph": "Access device over network using this name.local",
+        "tt": "Latin letters and numbers, no spaces"
+      },
+      "refresh": {
+        "n": "Web refresh interval",
+        "ph": "in seconds",
+        "tt": "?"
+      },
+      "work": {
+        "mode": {
+          "desc": "Device operating mode",
+          "net": "NETWORK mode",
+          "usb": "USB mode"
+        }
+      },
+      "kw": "Keep network & web server",
+      "led": {
+        "desc": "LED configuration",
+        "dis": "Full disable",
+        "pwr": "Power LED",
+        "mode": "Work mode LED",
+        "night": "Night mode"
+      },
+      "ntp": {
+        "desc": "NTP",
+        "zone": "Timezone",
+        "server": {
+          "n": "NTP server",
+          "ph": "pool.ntp.org",
+          "tt": "Enter valid domain name"
+        }
+      },
+      "u": {
+        "h": "New firmware check time",
+        "d": {
+          "tt": "Day of week",
+          "ev": "Everyday",
+          "mn": "Monday",
+          "tu": "Tuesday",
+          "wd": "Wednesday",
+          "th": "Thursday",
+          "fr": "Friday",
+          "sa": "Saturday",
+          "su": "Sunday",
+          "du": "Disable"
+        },
+        "ai": "Auto install updates (ESP32 and Zigbee)"
+      }
+    },
+    "ne": {
+      "descEth": "Ethernet",
+      "dhcp": "DHCP",
+      "ip": "IPv4",
+      "mask": "Subnet",
+      "gw": "Gateway",
+      "dns": "DNS",
+      "descWifi": "Wi-Fi",
+      "wifi": {
+        "btn": {
+          "scan": "Scan for Wi-Fi networks",
+          "man": "Enter manually"
+        },
+        "rssi": "RSSI",
+        "ssid": "SSID",
+        "sc": "Security",
+        "ch": "Channel",
+        "nnf": "WiFi networks not found",
+        "mode": "Mode",
+        "power": "Tx Power"
+      },
+      "ipv6": "IPv6"
+    },
+    "zi": {
+      "so": "Serial settings",
+      "ss": "Speed",
+      "sp": "Port",
+      "cfg": {
+        "tt": "Configuration generator",
+        "sel": "Generate for",
+        "alarm": "Inswift is operating in access point mode (IP 192.168.1.1). The IP address will change after connecting to Ethernet or Wi-Fi, after which you will need to regenerate the configuration.",
+        "ss": "Serial settings",
+        "lxzg": "Location of Inswift",
+        "dzl": "Disable Zigbee led?",
+        "sopm": "Set output power to max 20",
+        "ha": "For Home Assistant: Go to \"Settings\"→\"System\"→\"Hardware\"→Select the 3 dot menu in the upper right corner→\"All Hardware\"→Scroll to ttyACM and find your adapter→Copy Device path like \"/dev/ttyACM0\"",
+        "lin": "List of USB devices in Linux: ls  /dev/ttyACM*",
+        "dp": "INSERT_DEVICE_PATCH_HERE"
+      },
+      "fws": {
+        "tt": "Device Role",
+        "alarm": "Changing the firmware while the network is running will lead to its destruction!"
+      }
+    },
+    "mq": {
+      "enb": "Enable this to activate MQTT settings",
+      "desc": "Settings",
+      "broker": {
+        "n": "Server",
+        "ph": "Domain name or IP address",
+        "tt": "Enter valid domain or IP"
+      },
+      "port": {
+        "n": "Port",
+        "ph": "MQTT port number",
+        "tt": "Enter the port number (usually 1883)"
+      },
+      "topic": {
+        "n": "Topic",
+        "ph": "MQTT topic",
+        "tt": "Enter the MQTT topic of device X/Y/Z or X/Y or X. No spaces."
+      },
+      "interval": {
+        "n": "Interval",
+        "ph": "Update interval in seconds",
+        "tt": "Enter how often to send updates (in seconds)"
+      },
+      "disc": {
+        "n": "Home Assistant (MQTT Discovery)",
+        "ph": "Enable or disable",
+        "tt": "💡 Enable this for Home Assistant MQTT discovery feature"
+      },
+      "user": {
+        "ph": "Username",
+        "tt": "Enter username from your MQTT server"
+      },
+      "pass": {
+        "ph": "Password",
+        "tt": "Enter password from your MQTT server"
+      },
+      "reconnect": {
+        "n": "Reconnect",
+        "ph": "Reconnect interval in seconds",
+        "tt": "Enter fast try to reconnect MQTT server (in seconds)"
+      }
+    },
+    "vp": {
+      "wg": {
+        "tt": "WireGuard Interface Settings",
+        "lip": "IP address of the local interface",
+        "lpk": "Private key of the local interface",
+        "ea": "Address of the endpoint peer",
+        "epk": "Public key of the endpoint peer",
+        "ep": "Port of the endpoint peer",
+        "lsn": "Local Subnet",
+        "lgw": "Local Gateway",
+        "aip": "Allowed IPs",
+        "am": "Allowed Subnet",
+        "md": "Make default",
+        "psk": "Pre-shared key",
+        "lp": "Local port"
+      },
+      "hn": {
+        "tt": "Husarnet config (in develope)",
+        "jc": "Join Code for your network",
+        "hn": "Host name for your device",
+        "du": "Dashboard URL (leave 'default')"
+      }
+    },
+    "se": {
+      "desc": "Settings",
+      "web": {
+        "dis": "Disable web server when establishing Zigbee socket connection",
+        "auth": "Enable web server authentication"
+      },
+      "fw": {
+        "desc": "IP whitelist for Zigbee socket connection",
+        "ip": "Allowed IP",
+        "mask": "Allowed Mask"
+      }
+    },
+    "to": {
+      "sc": "System",
+      "fu": "Firmware",
+      "dt": "Debug",
+      "mc": "Modules control",
+      "zb": "Zigbee",
+      "rst": "Restart",
+      "fm": "Flash Mode",
+      "rr": "Router Reconnect",
+      "esp": "ESP32",
+      "fr": "Factory reset",
+      "csc": "Peripherals control",
+      "ms": "Mode select",
+      "ntw": "Network",
+      "usb": "USB",
+      "lt": "LEDs toggle",
+      "ls": "starting...",
+      "lb": "blinking...",
+      "pwr": "Power",
+      "mode": "Mode",
+      "dc": "Console",
+      "rd": "Raw data ",
+      "cc": "Clear",
+      "czc": "Check Zigbee connect",
+      "czv": "Check Zigbee version",
+      "fb": "File Browser",
+      "fn": "Filename",
+      "s": "Size",
+      "egu": "ESP32",
+      "efu": "ESP32 manual flashing",
+      "cf": "Select firmware file...",
+      "ilfg": "Install latest",
+      "zu": "Zigbee update",
+      "saf": "Show available...",
+      "zgu": "Zigbee",
+      "eznr": "Erase NVRAM"
+    },
+    "lo": {
+      "pt": "Login - Inswift",
+      "lbl": "Please sign in",
+      "btn": "Sign in",
+      "mnl": "Need to login",
+      "mwc": "Wrong credentials",
+      "mlo": "Logged out success"
+    },
+    "ab": {
+      "l1": "Inswift Firmware unifies the best innovations from",
+      "l2": "previous Zigbee gateway projects into a single, comprehensive solution.",
+      "l3": "By focusing the community's efforts on enhancing one product, Inswift aims to streamline development, thereby improving the capabilities and efficiency of your Zigbee Gateways. 🌍",
+      "w": {
+        "t": "Wiki",
+        "m": "To learn more about the Inswift firmware project, visit our: 📘",
+        "l": "Official Wiki"
+      },
+      "f": {
+        "t": "Feedback",
+        "m": "If you have any ideas, suggestions, or wish to help in other ways, please don't hesitate to: 📬",
+        "l": "Contact the author"
+      },
+      "s": {
+        "m": "Support this project through one of the following ways: 💖",
+        "t": "Support"
+      },
+      "c": {
+        "t": "Contribute",
+        "m": "Join us in improving translating, enhancing documentation, or coding new features. 💻",
+        "l": "Project Repository"
+      },
+      "r": {
+        "t": "Report",
+        "m": "To report a bug or request a feature, please: 🐞",
+        "l": "Open an Issue"
+      },
+      "cm": {
+        "m": "Your insights, feedback, and collaboration are invaluable to us 🤝",
+        "t": "Community",
+        "l": "Join Telegram group",
+        "d": "Join Discord community"
+      }
+    }
+  },
+  "c": {
+    "user": "Username",
+    "pass": "Password",
+    "save": "Save",
+    "enable": "Enable",
+    "en": "Enabled",
+    "dis": "Disabled",
+    "cancel": "Cancel",
+    "sure": "I'm sure",
+    "ltr": "Later",
+    "drm": "Don't remind",
+    "err": "Error",
+    "ok": "OK",
+    "now": "Install now",
+    "mode": "Mode",
+    "cst": "Status",
+    "csp": "Speed",
+    "mac": "MAC",
+    "conn": "Connected",
+    "connecting": "Connecting",
+    "disconn": "Disconnected",
+    "init": "Initialized",
+    "host": "Hostname",
+    "inst": "Install",
+    "cc": "Copy to clipboard",
+    "erss": "Error saving settings. Check your network",
+    "ercn": "Error. Check your network",
+    "proj": "Created with ❤️ by",
+    "nc": "No connection",
+    "cl": "Close",
+    "t": {
+      "e": "End time",
+      "s": "Start time"
+    },
+    "cerp": "Events reconnection max retries reached. Refresh page to continue.",
+    "more": "More info"
+  },
+  "md": {
+    "esp": {
+      "rst": {
+        "tt": "RESTART DEVICE",
+        "msg": "Waiting for reboot. Will close automatically.",
+        "nrps": "No response; check if IP or USB mode changed."
+      },
+      "fr": {
+        "tt": "FACTORY RESET WARNING",
+        "msg": "This will erase ALL settings."
+      },
+      "fu": {
+        "tt": "Inswift FIRMWARE UPDATE",
+        "lfm": "Updating from local file.",
+        "gvm": "Updating to {{ver}} GitHub release.",
+        "glm": "Updating to latest GitHub release.",
+        "wm": "It will disconnect ALL socket connections",
+        "wdm": "Waiting for device...",
+        "fri": "Fetching firmware info...",
+        "lgds": "Downloading latest GitHub release...",
+        "vgds": "Downloading release {{ver}} from GitHub...",
+        "ucr": "Update complete! Rebooting!",
+        "prgs": "Update: {{per}}%",
+        "gvt": "GitHub releases"
+      },
+      "ws": {
+        "tt": "Wi-Fi network connection",
+        "msg": "Connecting to the network in progress... Wait for the result.",
+        "nip": "New IP address is {{ip}} Device will now reboot for the new settings to take effect.",
+        "btn": "Go to",
+        "err": "Connection error, check SSID, PASSWORD and try again"
+      },
+      "mc": {
+        "tt": "Select your device model",
+        "mi": "More than one device with exactly your configuration is supported. You need to select your device."
+      }
+    },
+    "zb": {
+      "fu": {},
+      "dtc": "Coordinator",
+      "dtr": "Router",
+      "efr": "Error while retrieving firmware information<br>Check the network!",
+      "ncf": "The coordinator firmware is missing.",
+      "nrf": "The router firmware is missing.",
+      "ot": "Zigbee OTA update",
+      "rfm": "Getting information about the firmware...",
+      "ntf": "The Thread firmware is missing.",
+      "dtt": "OpenThread",
+      "cte": "Click to expand info"
+    },
+    "ss": {
+      "tt": "SETTINGS SAVED",
+      "rr": "Some settings require a reboot.",
+      "msg": "New parameters saved.",
+      "rn": "Restart now",
+      "rl": "Restart manually later"
+    },
+    "kw": {
+      "msg": "This function allows you to leave one of the communication channels active and have access to the web interface. The device itself will select an available channel according to priority: WIFI, ETHERNET, WIFI AP"
+    },
+    "zg": {
+      "fu": {
+        "f": "Going to flash: {{file}}",
+        "fn": "The firmware was successfully installed!",
+        "nv": "New version: {{ver}}",
+        "st": "CC2652 flash is starting...",
+        "er": "Erase finished"
+      }
+    }
+  },
+  "ts": {
+    "esp": {
+      "upd": {
+        "tt": "ESP32 update available 🚀",
+        "msg": "A newer version of Inswift firmware has been found"
+      },
+      "beta": {
+        "tt": "FW beta feedback",
+        "msg": "Thanks for testing new version! 🎢\nDon't forget to give feedback 💌",
+        "cnt": "Contact 🧧"
+      },
+      "ane": {
+        "tt": "Network Config Error",
+        "msg": "No network interfaces are enabled. Please activate at least one interface to continue."
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "No firmware found"
+      },
+      "upd": {
+        "tt": "New Zigbee firmware found 🌟",
+        "msg": "A newer version of firmware for the RCP module has been found"
+      }
+    }
+  }
+}

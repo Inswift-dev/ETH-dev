@@ -1,0 +1,463 @@
+{
+  "c": {
+    "cancel": "Annulla",
+    "cc": "Copia negli appunti",
+    "conn": "Collegato",
+    "csp": "Velocità di connessione",
+    "cst": "Stato della connessione",
+    "drm": "Non ricordare",
+    "enable": "Abilitare",
+    "ercn": "Errore. \nControlla la tua rete",
+    "erss": "Errore durante il salvataggio delle impostazioni. \nControlla la tua rete",
+    "host": "Nome host",
+    "init": "Inizializzato",
+    "inst": "Installa",
+    "ltr": "Dopo",
+    "mac": "Indirizzo MAC",
+    "mode": "Modalità",
+    "now": "Installa ora",
+    "pass": "Password",
+    "proj": "Creato con ❤️ da",
+    "save": "Salva",
+    "sure": "Sono sicuro",
+    "user": "Nome utente",
+    "ok": "OK",
+    "connecting": "Connessione",
+    "dis": "Disabilitato",
+    "disconn": "Disconnesso",
+    "en": "Abilitato",
+    "err": "Errore",
+    "nc": "Nessuna connessione",
+    "cl": "Chiudi",
+    "t": {
+      "e": "Tempo scaduto",
+      "s": "Ora di inizio"
+    },
+    "cerp": "È stato raggiunto il numero massimo di tentativi di riconnessione degli eventi. \nAggiorna la pagina per continuare.",
+    "more": "Maggiori informazioni"
+  },
+  "md": {
+    "esp": {
+      "fr": {
+        "msg": "Ciò cancellerà TUTTE le impostazioni.",
+        "tt": "AVVISO RESET DI FABBRICA"
+      },
+      "fu": {
+        "fri": "Recupero informazioni firmware...",
+        "glm": "Aggiornamento all'ultima versione di GitHub.",
+        "gvm": "Aggiornamento alla versione GitHub di {{ver}}.",
+        "gvt": "Rilasci GitHub",
+        "lfm": "Aggiornamento da file locale.",
+        "lgds": "Download dell'ultima versione di GitHub in corso...",
+        "prgs": "Aggiornamento: {{per}}%",
+        "tt": "AGGIORNAMENTO FIRMWARE Inswift",
+        "ucr": "Aggiornamento completato! \nRiavvio!",
+        "vgds": "Download della versione {{ver}} da GitHub in corso...",
+        "wdm": "In attesa del dispositivo...",
+        "wm": "Disconnetterà TUTTE le connessioni socket"
+      },
+      "rst": {
+        "msg": "In attesa di riavvio. \nSi chiuderà automaticamente.",
+        "nrps": "Nessuna risposta; \ncontrolla se la modalità IP o USB è cambiata.",
+        "tt": "RIAVVIARE IL DISPOSITIVO"
+      },
+      "ws": {
+        "btn": "Vai a",
+        "err": "Errore di connessione, controlla SSID, PASSWORD e riprova",
+        "msg": "Connessione alla rete in corso... Attendi il risultato.",
+        "nip": "Il nuovo indirizzo IP è {{ip}} Il dispositivo verrà ora riavviato affinché le nuove impostazioni abbiano effetto.",
+        "tt": "Connessione di rete Wi-Fi"
+      },
+      "mc": {
+        "mi": "È supportato più di un dispositivo con esattamente la tua configurazione. \nDevi selezionare il tuo dispositivo.",
+        "tt": "Seleziona il modello del tuo dispositivo"
+      }
+    },
+    "zb": {
+      "fu": {},
+      "dtc": "Coordinatore",
+      "dtr": "Router",
+      "efr": "Errore durante il recupero delle informazioni sul firmware<br>Controlla la tua rete!",
+      "ncf": "Nessun firmware del coordinatore disponibile.",
+      "nrf": "Nessun firmware del router disponibile.",
+      "ot": "Aggiornamento Zigbee OTA",
+      "rfm": "Recupero informazioni firmware...",
+      "dtt": "OpenThread",
+      "ntf": "Manca il firmware del thread.",
+      "cte": "Fare clic per espandere le informazioni"
+    },
+    "kw": {
+      "msg": "Questa funzione permette di lasciare attivo uno dei canali di comunicazione e di avere accesso all'interfaccia web. \nIl dispositivo stesso selezionerà un canale disponibile in base alla priorità: WIFI, ETHERNET, WIFI AP"
+    },
+    "ss": {
+      "msg": "Nuovi parametri salvati.",
+      "rl": "Riavviare manualmente più tardi",
+      "rn": "Riavvia ora",
+      "rr": "Alcune impostazioni richiedono un riavvio.",
+      "tt": "IMPOSTAZIONI SALVATE"
+    },
+    "zgb": {
+      "fu": {}
+    },
+    "zg": {
+      "fu": {
+        "f": "Flash: {{file}}",
+        "fn": "Flashato con successo!",
+        "nv": "Nuova versione: {{ver}}",
+        "st": "Avvio flash CC2652...",
+        "er": "Cancellazione terminata"
+      }
+    }
+  },
+  "l": {
+    "ab": "Info",
+    "ge": "Generale",
+    "lo": "Disconnettersi",
+    "mq": "MQTT",
+    "ne": "Rete",
+    "se": "Sicurezza",
+    "st": "Stato",
+    "to": "Strumenti",
+    "vp": "VPN",
+    "zi": "Zigbee"
+  },
+  "p": {
+    "ge": {
+      "desc": "Impostazioni generali",
+      "host": {
+        "n": "Nome host",
+        "ph": "Accedi al dispositivo sulla rete utilizzando questo nome.local",
+        "tt": "Lettere e numeri latini, senza spazi"
+      },
+      "kw": "Mantieni la rete",
+      "led": {
+        "desc": "Configurazione LED",
+        "dis": "Disabilitazione completa",
+        "mode": "LED modalità di lavoro",
+        "night": "Modalità notturna: controllo dei LED basato sul tempo",
+        "pwr": "LED di alimentazione"
+      },
+      "ntp": {
+        "desc": "Configurazione NTP",
+        "server": {
+          "n": "server NTP",
+          "ph": "pool.ntp.org",
+          "tt": "Inserisci un nome di dominio valido"
+        },
+        "zone": "Fuso orario"
+      },
+      "refresh": {
+        "n": "Intervallo di aggiornamento Web",
+        "ph": "in secondi",
+        "tt": "?"
+      },
+      "work": {
+        "mode": {
+          "desc": "Seleziona la modalità operativa del dispositivo",
+          "net": "Modalità di rete",
+          "usb": "Modalità USB"
+        }
+      },
+      "u": {
+        "ai": "Aggiornamenti con installazione automatica (ESP32 e Zigbee)",
+        "d": {
+          "ev": "Ogni giorno",
+          "fr": "Venerdì",
+          "mn": "Lunedi",
+          "sa": "Sabato",
+          "su": "Domenica",
+          "th": "Giovedì",
+          "tt": "Giorno della settimana",
+          "tu": "Martedì",
+          "wd": "Mercoledì",
+          "du": "Disabilita"
+        },
+        "h": "Orario di verifica del nuovo firmware"
+      }
+    },
+    "lo": {
+      "btn": "Registrazione",
+      "lbl": "Per favore accedi",
+      "pt": "Accedi - Inswift",
+      "mlo": "Disconnessione riuscita",
+      "mnl": "È necessario effettuare l'accesso",
+      "mwc": "Credenziali errate"
+    },
+    "mq": {
+      "broker": {
+        "n": "Broker",
+        "ph": "Nome di dominio o indirizzo IP",
+        "tt": "Inserisci un dominio o IP valido"
+      },
+      "desc": "Configurazione MQTT",
+      "disc": {
+        "n": "Assistente domestico: rilevamento automatico",
+        "ph": "Abilita o disabilita",
+        "tt": "💡 Abilita questa opzione per la funzione di rilevamento MQTT di Home Assistant"
+      },
+      "enb": "Abilita questo per attivare MQTT",
+      "interval": {
+        "n": "Intervallo",
+        "ph": "Intervallo di aggiornamento in secondi",
+        "tt": "Inserisci la frequenza con cui inviare gli aggiornamenti (in secondi)"
+      },
+      "pass": {
+        "ph": "Password MQTT",
+        "tt": "Inserisci la password del tuo broker"
+      },
+      "port": {
+        "n": "Porta",
+        "ph": "Numero di porta MQTT",
+        "tt": "Inserisci il numero di porta (solitamente 1883)"
+      },
+      "topic": {
+        "n": "Argomento",
+        "ph": "Argomento MQTT",
+        "tt": "Inserisci l'argomento MQTT del dispositivo X/Y/Z o X/Y o X. Senza spazi."
+      },
+      "user": {
+        "ph": "Nome utente MQTT",
+        "tt": "Inserisci il nome utente del tuo broker"
+      },
+      "reconnect": {
+        "n": "Riconnettiti",
+        "ph": "Intervallo di riconnessione in secondi",
+        "tt": "Inserisci velocemente prova a ricollegare il broker (in secondi)"
+      }
+    },
+    "ne": {
+      "descEth": "Configurazione Ethernet",
+      "descWifi": "Configurazione Wi-Fi",
+      "dhcp": "DHCP",
+      "dns": "Server DNS",
+      "gw": "Porta",
+      "ip": "IP",
+      "mask": "Maschera",
+      "wifi": {
+        "btn": {
+          "man": "Inserisci manualmente",
+          "scan": "Cerca reti Wi-Fi"
+        },
+        "ch": "Canale",
+        "rssi": "RSSI",
+        "sc": "Sicurezza",
+        "ssid": "SSID",
+        "nnf": "Reti WiFi non trovate",
+        "mode": "Modalità",
+        "power": "Potenza Tx"
+      },
+      "ipv6": "IPv6"
+    },
+    "st": {
+      "dic": {
+        "cs": "Cores",
+        "dm": "Modello dispositivo",
+        "ef": "Processore",
+        "efs": "Memoria",
+        "ehs": "Memoria utilizzata",
+        "et": "Temperatura",
+        "kb": "kB",
+        "mb": "MB",
+        "mhz": "MHz",
+        "tt": "Informazioni sul dispositivo",
+        "efte": "esterno",
+        "efti": "interno",
+        "efss": "File di Sistema",
+        "ens": "Memoria Flash",
+        "ent": "inserimenti",
+        "du": "Tempo di attività del dispositivo",
+        "lt": "Ora locale",
+        "et1": "Temperatura 1W"
+      },
+      "te": "Ethernet",
+      "tm": "MQTT",
+      "tvh": "Husarnet",
+      "tw": "Wifi",
+      "wgc": {
+        "ed": "Indirizzo dell'endpoint",
+        "lip": "Indirizzo IP locale",
+        "pip": "Indirizzo IP del pari",
+        "tt": "WireGuard"
+      },
+      "wc": {
+        "map": "AP",
+        "mcl": "Cliente"
+      },
+      "zbc": {
+        "op": "Modalità operativa",
+        "opn": "Rete Zigbee",
+        "opu": "Zigbee-USB",
+        "scc": "Client connessi",
+        "sccn": "Nessuna connessione",
+        "su": "tempo di connessione",
+        "sccy": "{{count}} clienti",
+        "zfs": "Dimensione della flash",
+        "zie": "IEEE"
+      },
+      "c": {
+        "fv": "Versione firmware",
+        "hv": "CPU-Info",
+        "r": "Ruolo"
+      },
+      "zr": {
+        "c": "Coordinatore",
+        "r": "Router",
+        "t": "OpenTread"
+      }
+    },
+    "se": {
+      "desc": "Configurazione sicurezza",
+      "fw": {
+        "desc": "Whitelist IP per socket",
+        "ip": "IP consentito",
+        "mask": "Maschera consentita"
+      },
+      "web": {
+        "auth": "Abilita l'autenticazione del server web",
+        "dis": "Disabilita il server web quando il socket è connesso"
+      }
+    },
+    "to": {
+      "cc": "Cancella Console",
+      "cf": "Scegli il file...",
+      "csc": "Controllo delle periferiche",
+      "czc": "Controlla la connessione Zigbee",
+      "czv": "Controlla la versione di Zigbee",
+      "dc": "Console di debug",
+      "dt": "Strumenti di debug",
+      "efu": "Aggiornamento del file ESP32",
+      "egu": "Aggiornamento Git ESP32",
+      "esp": "ESP32",
+      "fb": "Navigatore di file",
+      "fm": "Modalità flash",
+      "fn": "Nome del file",
+      "fr": "Ripristino delle impostazioni di fabbrica",
+      "fu": "Aggiornamento del firmware",
+      "ilfg": "Installa l'ultima versione",
+      "lb": "lampeggiante...",
+      "ls": "di partenza...",
+      "lt": "I LED si attivano/disattivano",
+      "mc": "Controllo dei moduli",
+      "mode": "Modalità",
+      "ms": "Selezione modalità",
+      "ntw": "Rete",
+      "pwr": "Energia",
+      "rd": "Dati",
+      "rr": "Riconnessione del router",
+      "rst": "Riavvia",
+      "s": "Misurare",
+      "sc": "Controllo del sistema",
+      "usb": "USB",
+      "zb": "Zigbee",
+      "zu": "Aggiornamento Zigbee (in fase di sviluppo)",
+      "saf": "Mostra i firmware disponibili",
+      "zgu": "Aggiornamento Git CC2652",
+      "eznr": "Cancella NVRAM"
+    },
+    "vp": {
+      "hn": {
+        "du": "URL della dashboard (lasciare \"predefinito\")",
+        "hn": "Nome host per il tuo dispositivo",
+        "jc": "Unisciti al codice per la tua rete",
+        "tt": "Configurazione Husarnet (in fase di sviluppo)"
+      },
+      "wg": {
+        "ea": "Indirizzo del peer endpoint",
+        "ep": "Porta del peer endpoint",
+        "epk": "Chiave pubblica del peer endpoint",
+        "lip": "Indirizzo IP dell'interfaccia locale",
+        "lpk": "Chiave privata dell'interfaccia locale",
+        "tt": "Configurazione WireGuard",
+        "aip": "IP consentiti",
+        "am": "Maschera consentita",
+        "lgw": "Gateway locale",
+        "lsn": "Sottorete locale",
+        "md": "Rendere predefinito",
+        "psk": "Chiave condivisa in precedenza",
+        "lp": "Porto locale"
+      }
+    },
+    "zi": {
+      "cfg": {
+        "alarm": "Sembra che Inswift funzioni in modalità punto di accesso (IP 192.168.1.1). \nL'indirizzo IP cambierà dopo la connessione a Ethernet o Wi-Fi, dopodiché sarà necessario generare nuovamente la configurazione.",
+        "dp": "INSERT_DEVICE_PATCH_QUI",
+        "dzl": "Disabilitare il led Zigbee?",
+        "ha": "Per Home Assistant: vai su \"Impostazioni\"→\"Sistema\"→\"Hardware\"→Seleziona il menu a 3 punti nell'angolo in alto a destra→\"Tutto l'hardware\"→Scorri fino a ttyACM e trova il tuo adattatore→Copia il percorso del dispositivo come \"/dev/ \nttyACM0\"",
+        "lin": "Elenca i dispositivi USB su Linux: ls /dev/ttyACM*",
+        "lxzg": "Posizione di Inswift",
+        "sel": "Genera configurazione per",
+        "sopm": "Imposta la potenza in uscita su un massimo di 20",
+        "ss": "Configurazione seriale",
+        "tt": "Generatore di configurazioni"
+      },
+      "so": "Configurazione seriale",
+      "sp": "Porta presa",
+      "ss": "Velocità della presa",
+      "fws": {
+        "alarm": "La modifica del firmware su una rete in esecuzione causa un guasto della rete!",
+        "tt": "Ruolo"
+      }
+    },
+    "ab": {
+      "c": {
+        "l": "Archivio dei progetti",
+        "m": "Unisciti a noi per migliorare la traduzione, migliorare la documentazione o codificare nuove funzionalità. \n💻",
+        "t": "Contribuire"
+      },
+      "cm": {
+        "l": "Unisciti al gruppo Telegram",
+        "m": "I tuoi approfondimenti, feedback e collaborazione sono preziosi per noi 🤝",
+        "t": "Comunità",
+        "d": "Unisciti alla comunità Discord"
+      },
+      "f": {
+        "l": "Contatta l'autore",
+        "m": "Se hai idee, suggerimenti o desideri aiutare in altri modi, non esitare a: 📬",
+        "t": "Feedback"
+      },
+      "l1": "Il firmware Inswift unisce le migliori innovazioni di",
+      "l2": "i precedenti progetti gateway Zigbee in un'unica soluzione completa.",
+      "l3": "Concentrando gli sforzi della comunità sul miglioramento di un prodotto, Inswift mira a semplificare lo sviluppo, migliorando così le capacità e l'efficienza dei tuoi gateway Zigbee. \n🌍",
+      "r": {
+        "l": "Apri un problema",
+        "m": "Per segnalare un bug o richiedere una funzionalità, per favore: 🐞",
+        "t": "Rapporto"
+      },
+      "s": {
+        "m": "Sostieni questo progetto attraverso uno dei seguenti modi: 💖",
+        "t": "Supporto"
+      },
+      "w": {
+        "l": "Wiki ufficiale",
+        "m": "Per saperne di più sul progetto firmware Inswift, visita il nostro: 📘",
+        "t": "Wiki"
+      }
+    }
+  },
+  "ts": {
+    "esp": {
+      "ane": {
+        "msg": "Nessuna interfaccia di rete è abilitata. \nAttiva almeno un'interfaccia per continuare.",
+        "tt": "Errore di configurazione di rete"
+      },
+      "beta": {
+        "cnt": "Contatto 🧧",
+        "msg": "Grazie per aver testato la nuova versione! 🎢\nNon dimenticare di lasciare un feedback 💌",
+        "tt": "Feedback sulla beta del firmware"
+      },
+      "upd": {
+        "msg": "È stata trovata una versione più recente del firmware Inswift",
+        "tt": "Aggiornamento ESP32 disponibile 🚀"
+      }
+    },
+    "zb": {
+      "nzfa": {
+        "tt": "Nessun firmware trovato"
+      },
+      "upd": {
+        "tt": "Trovato nuovo firmware Zigbee 🌟",
+        "msg": "È stata trovata una versione più recente del firmware per il modulo RCP"
+      }
+    }
+  }
+}

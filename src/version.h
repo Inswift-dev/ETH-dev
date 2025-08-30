@@ -1,0 +1,4 @@
+// AUTO GENERATED FILE
+#ifndef VERSION
+    #define VERSION "20250819"
+#endif
