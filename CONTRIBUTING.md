@@ -1,25 +1,14 @@
 # Contributing
 
-**Any contribution helps our team and makes XZG Firmware better for the entire community!**
+**Any contribution helps our team and makes ETH Firmware better for the entire community!**
 
-Everybody is welcome and invited to contribute to XZG Firmware project by:
+Everybody is welcome and invited to contribute to ETH Firmware project by:
 
 * Testing newly released features and reporting issues.
 * Providing Pull Requests (Features, Proof of Concepts, Language files or Fixes).
 * Contributing missing documentation for features.
 
 This document describes rules that are in effect for this repository, meant for handling issues by contributors in the issue tracker and PRs.
-
-## Opening New Issues
-
-**Issue tracker is NOT a general discussion forum!**
-1. Opening an issue means that a problem exists in the code and should be addressed by the project contributors.
-2. When opening an issue, it is required to fill out the presented template. The requested information is important! If the template is ignored or insufficient info about the issue is provided, the issue may be closed.
-3. Questions of type "How do I..." or "Can you please help me with..." or "Can ZigStar UZG do..." WILL NOT be handled here. Such questions should be directed at a discussion forum or to the ZigStar Support Chat. All issues of this type will be closed with a simple reference to this contributing policy.
-4. Issues about topics already handled in the documentation will be closed in a similar manner.
-5. Issues for unmerged PRs will be closed. If there is an issue with a PR, the explanation should be added to the PR itself.
-6. Issues with accompanied investigation that shows the root of the problem should be given priority.
-7. Duplicate issues will be closed.
 
 ## Triaging of Issues/PR's
 
@@ -42,11 +31,11 @@ A Pull Request (PR) is the process where code modifications are managed in GitHu
 The process is straight-forward.
 
  - Read [How to get faster PR reviews](https://github.com/kubernetes/community/blob/master/contributors/guide/pull-requests.md#best-practices-for-faster-reviews) by Kubernetes (but skip step 0)
- - Fork the [XZG repository](https://github.com/xyzroe/XZG).
+ - Fork the [ETH repository](https://github.com/Inswift-dev/ETH-dev).
  - Create new branch for your modifications.
  - Write/Change the code in your fork for a new feature, bug fix, new sensor, optimization, etc.
  - Ensure tests work.
- - Create a Pull Request against the your branch to  [XZG repository](https://github.com/xyzroe/XZG).
+ - Create a Pull Request against the your branch to  [ETH repository](https://github.com/Inswift-dev/ETH-dev).
 
 1. All pull requests must be done against the development branch.
 2. Only relevant files should be touched (Also beware if your editor has auto-formatting feature enabled).
