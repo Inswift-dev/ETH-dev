@@ -157,30 +157,51 @@ void flashZbUrl(String url)
 
     freeHeapPrint();
     delay(250);
+    
+    // 条件性停止 WiFi：
+    // 如果以太网和 WiFi 都连接时，断开 WiFi 以释放内存
+    // 如果只有 WiFi 或只有以太网其中一个连接，就保持连接
     if (networkCfg.wifiEnable)
     {
-        stopWifi();
+        if (vars.connectedEther)
+        {
+            // 以太网和 WiFi 都连接，停止 WiFi 以释放内存
+            LOGD("Both Ethernet and WiFi connected, stopping WiFi to free memory");
+            stopWifi();
+        }
+        else
+        {
+            // 只有 WiFi 连接，保持 WiFi 运行以便 Web 服务器和 HTTPClient 正常工作
+            LOGD("Only WiFi connected, keeping WiFi for web server and HTTPClient");
+        }
     }
+    
     if (mqttCfg.enable)
     {
         mqttDisconnectCleanup();
     }
+    
+    // 清理内存
+    heap_caps_free(NULL);
+    
     freeHeapPrint();
     delay(250);
 
     float last_percent = 0;
 
     const uint8_t eventLen = 11;
+    // 使用静态缓冲区存储进度字符串，避免频繁创建 String 对象
+    static char percentStr[16];
 
-    auto progressShow = [last_percent](float percent) mutable
+    auto progressShow = [&last_percent](float percent) mutable
     {
-        if ((percent - last_percent) > 1 || percent < 0.1 || percent == 100)
+        // 每 5% 更新一次，减少 sendEvent 调用频率
+        if ((percent - last_percent) > 5.0 || percent < 0.1 || percent == 100)
         {
-            // char buffer[100];
-            // snprintf(buffer, sizeof(buffer), "Flash progress: %.2f%%", percent);
-            // printLogMsg(String(buffer));
             LOGI("%.2f%%", percent);
-            sendEvent(tagZB_FW_prgs, eventLen, String(percent));
+            // 使用 snprintf 而不是 String 构造函数，减少内存分配
+            snprintf(percentStr, sizeof(percentStr), "%.2f", percent);
+            sendEvent(tagZB_FW_prgs, eventLen, String(percentStr));
             last_percent = percent;
         }
     };
@@ -199,7 +220,10 @@ void flashZbUrl(String url)
     // printLogMsg("Baud " + baud_str);
     systemCfg.serialSpeed = baud_str.toInt();
 
-    printLogMsg("ZB flash " + clear_url + " @ " + systemCfg.serialSpeed);
+    // 优化日志输出，减少 String 拼接
+    char logMsg[256];
+    snprintf(logMsg, sizeof(logMsg), "ZB flash %s @ %d", clear_url.c_str(), systemCfg.serialSpeed);
+    printLogMsg(logMsg);
 
     sendEvent(tagZB_FW_file, eventLen, String(clear_url));
 
@@ -286,7 +310,14 @@ void flashZbUrl(String url)
     {
         Serial2.updateBaudRate(systemCfg.serialSpeed);
         printLogMsg("Failed to flash Zigbee");
+        
+        // 发送错误事件
         sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
+        
+        // 立即处理 Web 服务器，确保事件被发送到前端
+        webServerHandleClient();
+        delay(100);  // 给一点时间让事件发送
+        webServerHandleClient();
     }
     ledControl.modeLED.mode = LED_OFF;
     vars.zbFlashing = false;
@@ -314,32 +345,71 @@ void flashZbUrl(String url)
     LOGD("Buffer content:\n%s", hexOutput.c_str());
 }*/
 
+// 使用静态缓冲区，避免在栈上分配大缓冲区
+static byte flashBuffer[CCTools::TRANSFER_SIZE];
+
 bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, CCTools &CCTool)
 {
     HTTPClient http;
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    // 优化 HTTPClient 配置，减少内存占用
+    http.setTimeout(30000);  // 30秒超时
+    http.setReuse(false);   // 不重用连接，释放资源
 
     int loadedSize = 0;
     int totalSize = 0;
-    const int maxRetries = 7;
+    const int maxRetries = 3;  // 从 7 减少到 3，减少重试次数
     int retryCount = 0;
     const int retryDelay = 500;
     bool isSuccess = false;
+    bool flashErased = false;  // 标志：是否已擦除 Flash，避免重复擦除
 
     while (retryCount < maxRetries && !isSuccess)
     {
+        // 检查内存，如果内存不足，提前失败
+        size_t freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        if (freeHeap < 10000)  // 如果内存少于 10KB，立即失败
+        {
+            LOGW("Critical low memory during flash: %d bytes, aborting", freeHeap);
+            printLogMsg("OTA failed: Insufficient memory");
+            sendEvent(tagZB_FW_err, 11, String("Insufficient memory"));
+            webServerHandleClient();
+            delay(100);
+            webServerHandleClient();
+            http.end();
+            CCTool.restart();
+            return false; // 提前返回，不再重试
+        }
+
         if (!dnsLookup(url))
         {
-            retryCount += 3;
-            delay(retryDelay * 3);
+            retryCount++;
+            // 如果是早期失败（前 2 次），快速返回
+            if (retryCount >= 2)
+            {
+                LOGW("DNS lookup failed after %d retries, aborting", retryCount);
+                printLogMsg("OTA failed: DNS lookup failed");
+                sendEvent(tagZB_FW_err, 11, String("DNS lookup failed"));
+                webServerHandleClient();
+                delay(100);
+                webServerHandleClient();
+                http.end();
+                CCTool.restart();
+                return false; // 提前返回
+            }
+            delay(retryDelay);
+            // 确保 Web 服务器可以处理事件，以便前端能及时收到错误信息
+            webServerHandleClient();
             continue;
         }
 
-        if (loadedSize == 0)
+        // 只在第一次或需要重新开始时擦除，避免重复擦除
+        if (loadedSize == 0 && !flashErased)
         {
             CCTool.eraseFlash();
             sendEvent("ZB_FW_info", 11, String("erase"));
             printLogMsg("Erase completed!");
+            flashErased = true;
         }
 
         http.begin(url);
@@ -347,7 +417,10 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
         if (loadedSize > 0)
         {
-            http.addHeader("Range", "bytes=" + String(loadedSize) + "-");
+            // 使用字符数组而不是 String，减少内存分配
+            char rangeHeader[32];
+            snprintf(rangeHeader, sizeof(rangeHeader), "bytes=%d-", loadedSize);
+            http.addHeader("Range", rangeHeader);
         }
 
         int httpCode = http.GET();
@@ -360,7 +433,23 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
             http.end();
             retryCount++;
+            
+            // 如果是早期失败（前 2 次），快速返回
+            if (retryCount >= 2)
+            {
+                LOGW("HTTP error persists after %d retries, aborting", retryCount);
+                printLogMsg("OTA failed: Network error");
+                sendEvent(tagZB_FW_err, 11, String("Network error"));
+                webServerHandleClient();
+                delay(100);
+                webServerHandleClient();
+                CCTool.restart();
+                return false; // 提前返回
+            }
+            
             delay(retryDelay);
+            // 确保 Web 服务器可以处理事件，以便前端能及时收到错误信息
+            webServerHandleClient();
             continue;
         }
 
@@ -376,34 +465,69 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
                 http.end();
                 printLogMsg("Error initializing flash process");
                 retryCount++;
+                
+                // 如果是早期失败（前 2 次），快速返回
+                if (retryCount >= 2)
+                {
+                    LOGW("Flash init failed after %d retries, aborting", retryCount);
+                    printLogMsg("OTA failed: Flash init error");
+                    sendEvent(tagZB_FW_err, 11, String("Flash init error"));
+                    webServerHandleClient();
+                    delay(100);
+                    webServerHandleClient();
+                    CCTool.restart();
+                    return false; // 提前返回
+                }
+                
                 delay(retryDelay);
+                // 确保 Web 服务器可以处理事件，以便前端能及时收到错误信息
+                webServerHandleClient();
                 continue;
             }
             printLogMsg("Begin flash");
         }
 
-        byte buffer[CCTool.TRANSFER_SIZE];
+        // 使用静态缓冲区而不是栈上分配
         WiFiClient *stream = http.getStreamPtr();
         static int callCounter = 0;
+        static int webServerCallCounter = 0;
 
         while (http.connected() && loadedSize < totalSize)
         {
             size_t size = stream->available();
             if (size > 0)
             {
-                int c = stream->readBytes(buffer, std::min(size, sizeof(buffer)));
+                int c = stream->readBytes(flashBuffer, std::min(size, sizeof(flashBuffer)));
                 if (c <= 0)
                 {
                     printLogMsg("Failed to read data from stream");
                     break;
                 }
 
-                if (!CCTool.processFlash(buffer, c))
+                if (!CCTool.processFlash(flashBuffer, c))
                 {
                     printLogMsg("Failed to process flash data");
                     loadedSize = 0;
                     retryCount++;
+                    
+                    // 如果是早期失败（前 2 次），快速返回
+                    if (retryCount >= 2)
+                    {
+                        LOGW("Flash process failed after %d retries, aborting", retryCount);
+                        printLogMsg("OTA failed: Flash process error");
+                        sendEvent(tagZB_FW_err, 11, String("Flash process error"));
+                        webServerHandleClient();
+                        delay(100);
+                        webServerHandleClient();
+                        stream->stop();
+                        http.end();
+                        CCTool.restart();
+                        return false; // 提前返回
+                    }
+                    
                     delay(retryDelay);
+                    // 确保 Web 服务器可以处理事件，以便前端能及时收到错误信息
+                    webServerHandleClient();
                     break;
                 }
 
@@ -414,14 +538,42 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
             esp_task_wdt_reset(); // Reset watchdog
             delay(10); // Yield to the WiFi stack
-                       
+            
             callCounter++;
+            webServerCallCounter++;
 
-            if (callCounter % 500 == 0)
+            // 更频繁地检查内存（每 100 次循环，约 1 秒）
+            if (callCounter % 100 == 0)
             {
+                size_t freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+                
+                // 如果内存少于 10KB，立即失败
+                if (freeHeap < 10000)
+                {
+                    LOGW("Critical low memory during flash: %d bytes, aborting", freeHeap);
+                    printLogMsg("OTA failed: Insufficient memory");
+                    sendEvent(tagZB_FW_err, 11, String("Insufficient memory"));
+                    webServerHandleClient();
+                    delay(100);
+                    webServerHandleClient();
+                    stream->stop();
+                    http.end();
+                    CCTool.restart();
+                    return false; // 提前返回，不再继续
+                }
+                else if (freeHeap < 20000)  // 如果内存少于 20KB，记录警告
+                {
+                    LOGW("Low memory during flash: %d bytes", freeHeap);
+                }
                 freeHeapPrint();
-                delay(10);
                 callCounter = 0;
+            }
+            
+            // 定期调用 webServerHandleClient，确保 Web 服务器可以处理事件（每 50 次循环，约 0.5 秒）
+            if (webServerCallCounter % 50 == 0)
+            {
+                webServerHandleClient();
+                webServerCallCounter = 0;
             }
         }
 
@@ -432,6 +584,18 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
         {
             isSuccess = true;
         }
+    }
+
+    // 如果失败，立即发送错误事件并通知用户
+    if (!isSuccess)
+    {
+        // 发送错误事件，通知用户失败
+        printLogMsg("OTA failed after all retries");
+        sendEvent(tagZB_FW_err, 11, String("OTA failed"));
+        // 确保 Web 服务器可以处理事件，以便前端能及时收到错误信息
+        webServerHandleClient();
+        delay(100);
+        webServerHandleClient();
     }
 
     http.end();

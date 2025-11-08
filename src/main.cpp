@@ -161,13 +161,14 @@ void handleTmrNetworkOverseer()
   }
   if (networkCfg.wifiEnable)
   {
-    LOGD("WiFi.status = %s", String(WiFi.status()).c_str());
+    LOGD("WiFi.status = %s, Counter = %d", String(WiFi.status()).c_str(), networkOverseerCounter);
 
     if (WiFi.isConnected())
     {
       LOGD("WIFI CONNECTED");
-      // tmrNetworkOverseer.stop();
+      // 连接成功，停止监控器
       tmrNetworkOverseer.detach();
+      networkOverseerCounter = 0; // 重置计数器
       if (!vars.firstUpdCheck)
       {
         firstUpdCheck();
@@ -177,11 +178,32 @@ void handleTmrNetworkOverseer()
     {
       if (!vars.zbFlashing)
       {
+        // 更积极地尝试重连：每 3 次检查（15秒）尝试一次，而不是等待 60 秒
+        if (networkOverseerCounter > 3)
+        {
+          LOGD("WiFi not connected, attempting reconnect (attempt %d)", networkOverseerCounter / 3);
+          // 每 3 次检查尝试一次重连
+          if (networkOverseerCounter % 3 == 0)
+          {
+            connectWifi();
+          }
+        }
+        
+        // 如果多次重连失败（超过最大重试次数），启动 AP 模式
         if (networkOverseerCounter > overseerMaxRetry)
         {
-          LOGD("WIFI counter overflow");
-          startAP(true);
+          // 如果已经在 AP 模式下，不需要重复启动
+          if (!vars.apStarted)
+          {
+            LOGD("WIFI counter overflow, starting AP mode");
+            startAP(true);
+          }
+          else
+          {
+            LOGD("WIFI counter overflow, AP mode already active");
+          }
           connectWifi();
+          networkOverseerCounter = 0; // 重置计数器
         }
       }
     }
@@ -207,8 +229,16 @@ void handleTmrNetworkOverseer()
       // if (tmrNetworkOverseer.counter() > overseerMaxRetry)
       if (networkOverseerCounter > overseerMaxRetry)
       {
-        LOGD("LAN counter overflow!");
-        startAP(true);
+        // 如果已经在 AP 模式下，不需要重复启动
+        if (!vars.apStarted)
+        {
+          LOGD("LAN counter overflow, starting AP mode");
+          startAP(true);
+        }
+        else
+        {
+          LOGD("LAN counter overflow, AP mode already active");
+        }
       }
     }
   }
@@ -271,6 +301,14 @@ void NetworkEvent(WiFiEvent_t event)
          ETH.linkSpeed());
 
     vars.connectedEther = true;
+    
+    // 如果 MQTT 已启用但未连接，尝试连接
+    if (mqttCfg.enable && !vars.mqttConn)
+    {
+      LOGD("Ethernet connected, attempting MQTT connection");
+      connectToMqtt();
+    }
+    
     if(systemCfg.workMode == WORK_MODE_NETWORK)
     {
       ledControl.statusLED.mode = LED_OFF;
@@ -330,6 +368,13 @@ void NetworkEvent(WiFiEvent_t event)
     LOGD("WiFi TX %s", String(WiFi.getTxPower()).c_str());
     connectedWifi = true;
     
+    // 如果 MQTT 已启用但未连接，尝试连接
+    if (mqttCfg.enable && !vars.mqttConn)
+    {
+      LOGD("WiFi connected, attempting MQTT connection");
+      connectToMqtt();
+    }
+    
     if(systemCfg.workMode == WORK_MODE_NETWORK)
     {
       ledControl.statusLED.mode = LED_OFF;
@@ -361,13 +406,25 @@ void NetworkEvent(WiFiEvent_t event)
     break;
   case ARDUINO_EVENT_WIFI_STA_DISCONNECTED: // SYSTEM_EVENT_STA_DISCONNECTED:
     LOGD("%s STA DISCONNECTED", wifiKey);
-    // if (tmrNetworkOverseer.state() == STOPPED)
+    connectedWifi = false;
+    
+    // 如果 WiFi 已启用，立即尝试重连（不等待定时器）
+    if (networkCfg.wifiEnable && !vars.zbFlashing)
+    {
+      LOGD("WiFi disconnected, attempting immediate reconnect");
+      // 重置计数器以便立即重试
+      networkOverseerCounter = 0;
+      // 延迟一小段时间后尝试重连，避免立即重连可能的问题
+      delay(100);
+      connectWifi();
+    }
+    
+    // 启动网络监控器以持续检查连接状态
     if (!tmrNetworkOverseer.active())
     {
-      // tmrNetworkOverseer.start();
       tmrNetworkOverseer.attach(overseerInterval, handleTmrNetworkOverseer);
     }
-    connectedWifi = false;
+    
     if(systemCfg.workMode == WORK_MODE_NETWORK)
     {
       if((connectedWifi == false) && (vars.connectedEther == false))
@@ -446,7 +503,17 @@ void connectWifi()
     timeout = 0;
     LOGD("timeout");
   }
-  WiFi.persistent(false);
+  
+  // 启用 WiFi 持久化，确保重启后自动连接（仅在 STA 模式下）
+  // 在 AP 模式下保持 persistent(false) 以避免保存 AP 配置
+  if (!vars.apStarted)
+  {
+    WiFi.persistent(true);
+  }
+  else
+  {
+    WiFi.persistent(false);
+  }
 
   // Dont work on Arduino framework
 
@@ -1070,19 +1137,31 @@ void loop(void)
       {
         if (client[cln])
         {
-          socketClientConnected(cln, client[cln].remoteIP());
-          while (client[cln].available())
-          { // read from LAN
-            net_buf[net_bytes_read] = client[cln].read();
-            if (net_bytes_read < BUFFER_SIZE - 1)
-              net_bytes_read++;
-          } // send to Zigbee
-          if((net_bytes_read > 0) && (net_bytes_read < 0xff))
+          // 检查客户端是否仍然连接
+          if (client[cln].connected())
           {
-            Serial2.write(net_buf, net_bytes_read);
-            // print to web console
-            printRecvSocket(net_bytes_read, net_buf);
-            net_bytes_read = 0;
+            socketClientConnected(cln, client[cln].remoteIP());
+            while (client[cln].available())
+            { // read from LAN
+              net_buf[net_bytes_read] = client[cln].read();
+              if (net_bytes_read < BUFFER_SIZE - 1)
+                net_bytes_read++;
+            } // send to Zigbee
+            if((net_bytes_read > 0) && (net_bytes_read < 0xff))
+            {
+              Serial2.write(net_buf, net_bytes_read);
+              // print to web console
+              printRecvSocket(net_bytes_read, net_buf);
+              net_bytes_read = 0;
+            }
+          }
+          else
+          {
+            // 客户端对象存在但已断开，需要清理
+            LOGD("Client %d disconnected, cleaning up", cln);
+            client[cln].stop();
+            socketClientDisconnected(cln);
+            client[cln] = WiFiClient(); // 重置客户端对象
           }
         }
         else

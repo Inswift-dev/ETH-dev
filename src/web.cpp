@@ -315,6 +315,8 @@ serverWeb.on("/js/jquery-min.js", []()
                  { sendGzipFromFS("/js/bootstrap.bundle.min.js.gz", contTypeTextJs); });
     serverWeb.on("/js/masonry.js", []()
                  { sendGzipFromFS("/js/masonry.js.gz", contTypeTextJs); });
+    serverWeb.on("/js/marked.min.js", []()
+                { sendGzipFromFS("/js/marked.min.js.gz", contTypeTextJs); });
     serverWeb.on("/js/functions.js", []()
                  { sendGzipFromFS("/js/functions.js.gz", contTypeTextJs); });
     serverWeb.on("/js/jquery-min.js", []()

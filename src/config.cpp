@@ -648,13 +648,16 @@ void updateConfiguration(WebServer &serverWeb, SystemConfigStruct &configSys, Ne
             serverWeb.send(HTTP_CODE_OK, contTypeText, "ok");
             if (configNet.wifiEnable)
             {
-                WiFi.persistent(false);
+                // 启用 WiFi 持久化，确保重启后自动连接（仅在 STA 模式下）
+                // 在 AP 模式下保持 persistent(false) 以避免保存 AP 配置
                 if (vars.apStarted)
                 {
+                    WiFi.persistent(false);
                     WiFi.mode(WIFI_AP_STA);
                 }
                 else
                 {
+                    WiFi.persistent(true);
                     WiFi.mode(WIFI_STA);
                 }
                 WiFi.begin(configNet.wifiSsid, configNet.wifiPass);

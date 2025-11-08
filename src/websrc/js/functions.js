@@ -1012,9 +1012,9 @@ function dataReplace(values, navOnly = false) {
 				case "espFsSize":
 					updateProgressBar("prgFs", values.espFsUsed, 0, valueToSet)
 					break;
-				case "deviceTemp":
-					updateProgressBar("prgTemp", valueToSet, 15, 105)
-					break;
+				// case "deviceTemp":
+				// 	updateProgressBar("prgTemp", valueToSet, 15, 105)
+				// 	break;
 				case "1wTemp":
 					$("#1wBar").removeAttr('hidden');
 					updateProgressBar("prgTemp1w", valueToSet, 0, 100)
