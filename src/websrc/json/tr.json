@@ -105,7 +105,8 @@
         "fn": "Başarıyla yanıp söndü!",
         "nv": "Yeni sürüm: {{ver}}",
         "st": "CC2652 flaş başlangıç...",
-        "er": "Silme tamamlandı"
+        "er": "Silme tamamlandı",
+        "cmm": "Chip modeli uyuşmuyor! Mevcut: {{current}}, Firmware: {{firmware}}"
       }
     }
   },
@@ -349,7 +350,8 @@
       "sc": "Sistem kontrolü",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Zigbee güncellemesi (geliştirilme aşamasında)",
+      "zu": "Zigbee yerel güncelleme",
+      "cm": "Mevcut chip modeli",
       "saf": "Mevcut ürün yazılımlarını göster",
       "zgu": "Git CC2652 güncellemesi",
       "eznr": "NVRAM'ı sil"

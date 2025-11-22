@@ -275,7 +275,8 @@
       "efu": "ESP32 kézi flashelése",
       "cf": "Válassz firmware fájlt...",
       "ilfg": "Legfrissebb telepítése",
-      "zu": "Zigbee frissítés (fejlesztés alatt)",
+      "zu": "Zigbee helyi frissítés",
+      "cm": "Jelenlegi chip modell",
       "saf": "Elérhető mutatása...",
       "zgu": "Zigbee",
       "eznr": "NVRAM törlése"
@@ -423,6 +424,7 @@
     },
     "zg": {
       "fu": {
+        "cmm": "A chip modell nem egyezik! Jelenlegi: {{current}}, Firmware: {{firmware}}",
         "f": "{{file}} flash-be írása",
         "fn": "Az új verzió sikeresen telepítve!",
         "nv": "Új verzió: {{ver}}",

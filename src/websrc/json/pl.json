@@ -105,7 +105,8 @@
         "fn": "Flashowanie pomyślnie!",
         "nv": "Nowa wersja: {{ver}}",
         "st": "Uruchamianie lampy błyskowej CC2652...",
-        "er": "Wymazywanie zakończone"
+        "er": "Wymazywanie zakończone",
+        "cmm": "Model chipa nie pasuje! Aktualny: {{current}}, Firmware: {{firmware}}"
       }
     }
   },
@@ -349,7 +350,8 @@
       "sc": "Sterowanie systemem",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Aktualizacja Zigbee (w przygotowaniu)",
+      "zu": "Lokalna aktualizacja Zigbee",
+      "cm": "Aktualny model chipa",
       "saf": "Pokaż dostępne oprogramowanie sprzętowe",
       "zgu": "Zigbee",
       "eznr": "Wymaż NVRAM"

@@ -24,7 +24,7 @@ void handleSavefile();
 void handleApi();
 void handleUpdateRequest();
 void handleEspUpdateUpload();
-//void handleZbUpdateUpload();
+void handleZbUpdateUpload();
 void handleNotFound();
 bool captivePortal();
 

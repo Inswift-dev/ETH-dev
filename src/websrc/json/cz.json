@@ -275,7 +275,8 @@
       "efu": "Ruční flashování ESP32",
       "cf": "Vybrat soubor s firmwarem...",
       "ilfg": "Nainstalovat nejnovější",
-      "zu": "Aktualizace Zigbee (ve vývoji)",
+      "zu": "Místní aktualizace Zigbee",
+      "cm": "Aktuální model čipu",
       "saf": "Zobrazit dostupné",
       "zgu": "Zigbee",
       "eznr": "Vymazat NVRAM"
@@ -423,6 +424,7 @@
     },
     "zg": {
       "fu": {
+        "cmm": "Model čipu se neshoduje! Aktuální: {{current}}, Firmware: {{firmware}}",
         "f": "Připravuje se flashování: {{file}}",
         "fn": "Firmware byl úspěšně nainstalován!",
         "nv": "Nová verze: {{ver}}",

@@ -105,7 +105,8 @@
         "fn": "Piscou com sucesso!",
         "nv": "Nova versão: {{ver}}",
         "st": "Flash CC2652 iniciando...",
-        "er": "Apagar concluído"
+        "er": "Apagar concluído",
+        "cmm": "Modelo de chip não corresponde! Atual: {{current}}, Firmware: {{firmware}}"
       }
     }
   },
@@ -349,7 +350,8 @@
       "sc": "Controle de sistema",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Atualização Zigbee (em desenvolvimento)",
+      "zu": "Atualização local Zigbee",
+      "cm": "Modelo de chip atual",
       "saf": "Mostrar firmwares disponíveis",
       "zgu": "Atualização do Git CC2652",
       "eznr": "Apagar NVRAM"

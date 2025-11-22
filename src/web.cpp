@@ -375,7 +375,7 @@ serverWeb.on("/js/jquery-min.js", []()
     /* ----- OTA | START -----*/
 
     serverWeb.on("/update", HTTP_POST, handleUpdateRequest, handleEspUpdateUpload);
-    // serverWeb.on("/updateZB", HTTP_POST, handleUpdateRequest, handleZbUpdateUpload);
+    serverWeb.on("/updateZB", HTTP_POST, handleUpdateRequest, handleZbUpdateUpload);
 
     /* ----- OTA | END -----*/
 
@@ -528,6 +528,112 @@ void handleEspUpdateUpload()
         serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, "Aborted");
         Update.end();
         LOGD("Update aborted");
+    }
+}
+
+void handleZbUpdateUpload()
+{
+    if (!is_authenticated())
+    {
+        return;
+    }
+
+    HTTPUpload &upload = serverWeb.upload();
+    static File uploadFile;
+    static String filename;
+    
+    LOGD("upload.status: %d", upload.status);
+    
+    if (upload.status == UPLOAD_FILE_START)
+    {
+        // 如果之前有打开的文件，先关闭
+        if (uploadFile)
+        {
+            uploadFile.close();
+            opened = false;
+        }
+        
+        filename = upload.filename.c_str();
+        LOGD("Upload Zigbee firmware from file %s size: %s", filename.c_str(), String(upload.totalSize).c_str());
+        
+        // 删除旧文件（如果存在）
+        if (LittleFS.exists(tempFile))
+        {
+            LittleFS.remove(tempFile);
+        }
+        
+        // 打开文件进行写入
+        uploadFile = LittleFS.open(tempFile, FILE_WRITE);
+        if (!uploadFile)
+        {
+            LOGD("Failed to open file for writing: %s", tempFile);
+            serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, "Failed to open file");
+            return;
+        }
+        opened = true;
+    }
+    else if (upload.status == UPLOAD_FILE_WRITE)
+    {
+        if (uploadFile)
+        {
+            size_t written = uploadFile.write(upload.buf, upload.currentSize);
+            if (written != upload.currentSize)
+            {
+                LOGD("Write failed. Written: %d, Expected: %d", written, upload.currentSize);
+            }
+        }
+    }
+    else if (upload.status == UPLOAD_FILE_END)
+    {
+        if (uploadFile)
+        {
+            uploadFile.close();
+            opened = false;
+            LOGD("File upload completed: %s, original filename: %s", tempFile, filename.c_str());
+            
+            // 发送成功响应
+            serverWeb.send(HTTP_CODE_OK, contTypeText, "Upload OK. Starting flash...");
+            
+            // 保存原始文件名，用于芯片型号校验
+            String originalFilename = filename;
+            
+            // 启动固件升级任务，传递原始文件名
+            struct FlashParams {
+                const char *filePath;
+                char *originalFilename;
+            };
+            
+            FlashParams *params = new FlashParams;
+            params->filePath = tempFile;
+            params->originalFilename = strdup(originalFilename.c_str());
+            
+            xTaskCreate([](void *pvParameters) {
+                FlashParams *params = (FlashParams *)pvParameters;
+                flashZbFile(params->filePath, params->originalFilename);
+                free(params->originalFilename);
+                delete params;
+                vTaskDelete(NULL);
+            }, "flashZbFileTask", 8192, params, 1, NULL);
+        }
+        else
+        {
+            serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, "Upload failed");
+            LOGD("Upload failed: file not opened");
+        }
+    }
+    else if (upload.status == UPLOAD_FILE_ABORTED)
+    {
+        if (uploadFile)
+        {
+            uploadFile.close();
+            opened = false;
+        }
+        if (LittleFS.exists(tempFile))
+        {
+            LittleFS.remove(tempFile);
+        }
+        serverWeb.send(HTTP_CODE_INTERNAL_SERVER_ERROR, contTypeText, "Upload aborted");
+        LOGD("Upload aborted");
     }
 }
 

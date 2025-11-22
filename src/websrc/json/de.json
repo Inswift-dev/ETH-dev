@@ -105,7 +105,8 @@
         "fn": "Erfolgreich geflasht!",
         "nv": "Neue Version: {{ver}}",
         "st": "CC2652-flash startet...",
-        "er": "Löschen beendet"
+        "er": "Löschen beendet",
+        "cmm": "Chip-Modell stimmt nicht überein! Aktuell: {{current}}, Firmware: {{firmware}}"
       }
     }
   },
@@ -349,7 +350,8 @@
       "sc": "Systemkontrolle",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Zigbee-Update (in Entwicklung)",
+      "zu": "Zigbee lokales Update",
+      "cm": "Aktuelles Chip-Modell",
       "saf": "Verfügbare Firmwares anzeigen",
       "zgu": "Git CC2652-Update",
       "eznr": "NVRAM löschen"

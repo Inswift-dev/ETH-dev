@@ -102,7 +102,8 @@
         "fn": "¡El firmware se ha instalado con éxito!",
         "nv": "Nueva versión: {{ver}}",
         "st": "Iniciando CC2652 flash...",
-        "er": "Borrado terminado"
+        "er": "Borrado terminado",
+        "cmm": "¡Modelo de chip no coincide! Actual: {{current}}, Firmware: {{firmware}}"
       }
     }
   },
@@ -346,7 +347,8 @@
       "sc": "Control del sistema",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Actualización de Zigbee (en desarrollo)",
+      "zu": "Actualización local de Zigbee",
+      "cm": "Modelo de chip actual",
       "saf": "Mostrar firmwares disponibles",
       "zgu": "Actualización de Git CC2652",
       "eznr": "Borrar NVRAM"

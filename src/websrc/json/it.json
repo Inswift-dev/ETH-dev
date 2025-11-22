@@ -105,7 +105,8 @@
         "fn": "Flashato con successo!",
         "nv": "Nuova versione: {{ver}}",
         "st": "Avvio flash CC2652...",
-        "er": "Cancellazione terminata"
+        "er": "Cancellazione terminata",
+        "cmm": "Modello chip non corrisponde! Attuale: {{current}}, Firmware: {{firmware}}"
       }
     }
   },
@@ -349,7 +350,8 @@
       "sc": "Controllo del sistema",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Aggiornamento Zigbee (in fase di sviluppo)",
+      "zu": "Aggiornamento locale Zigbee",
+      "cm": "Modello chip attuale",
       "saf": "Mostra i firmware disponibili",
       "zgu": "Aggiornamento Git CC2652",
       "eznr": "Cancella NVRAM"

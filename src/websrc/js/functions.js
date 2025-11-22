@@ -1399,6 +1399,17 @@ function connectEvents() {
 		//console.log(e.data);
 		$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.prgs', { per: e.data }));
 		$("#zbFlshPrgs").css("width", e.data + '%');
+		$("#zbFlshPrgs").removeClass("progress-bar-animated");
+
+		if (Math.round(e.data) > 99) {
+			setTimeout(function () {
+				$('#zbFlshPgsTxt').html(i18next.t('md.esp.fu.ucr')).css("color", "green");
+
+				setTimeout(function () {
+					restartWait();
+				}, 1000);
+			}, 500);
+		}
 	}, false);
 
 	sourceEvents.addEventListener('zb.nv', function (e) {
@@ -1423,13 +1434,13 @@ function connectEvents() {
 
 		if (e.data == "finish") {
 			data = i18next.t('md.zg.fu.fn');
-			$(".progress").addClass(classHide);
 			$(modalBody).css("color", "green");
-			setTimeout(() => {
-				$(modalBtns).html("");
-				modalAddClose();
+		}
 
-			}, 1000);
+		if (e.data == "error") {
+			// 错误状态，隐藏进度条，等待 zb.fe 事件显示具体错误信息
+			$(".progress").addClass(classHide);
+			$("#zbFlshPgsTxt").html(i18next.t('md.esp.fu.wdm'));
 		}
 
 		$("#zbFlshPgsTxt").html(data);
@@ -1438,6 +1449,7 @@ function connectEvents() {
 
 	sourceEvents.addEventListener('zb.ff', function (e) {
 		let fileName = fileFromUrl(e.data);
+		let data;
 		if (fileName) {
 			data = i18next.t('md.zg.fu.f', { file: fileName });
 		}
@@ -1447,20 +1459,33 @@ function connectEvents() {
 				ver = e.data;
 			}
 			data = i18next.t('md.zg.fu.nv', { ver: ver });
-			setTimeout(function () {
-				//espReboot();
-				restartWait();
-			}, 1250);
 		}
 		$("#zbFlshPgsTxt").html(data);
 	}, false);
 
 	sourceEvents.addEventListener('zb.fe', function (e) {
-		const data = e.data.replaceAll("`", "<br>");
+		let data = e.data.replaceAll("`", "<br>");
+		console.log("zb.fe event received:", data);
+		
+		// 检查是否是芯片型号不匹配错误
+		if (data.indexOf("Chip model mismatch") >= 0 || data.indexOf("芯片型号不匹配") >= 0) {
+			// 尝试解析错误消息
+			let currentMatch = data.match(/Current[=:]\s*([^,]+)/i);
+			let firmwareMatch = data.match(/Firmware[=:]\s*([^,)]+)/i);
+			
+			if (currentMatch && firmwareMatch) {
+				let currentChip = currentMatch[1].trim();
+				let firmwareChip = firmwareMatch[1].trim();
+				data = i18next.t('md.zg.fu.cmm', { current: currentChip, firmware: firmwareChip });
+			}
+		}
+		
+		// 停止等待状态，显示错误信息
 		$(modalBtns).html("");
 		$("#zbFlshPgsTxt").html(data);
 		$(".progress").addClass(classHide);
-		$(modalBody).html(e.data).css("color", "red");
+		$("#zbFlshPrgs").removeClass("progress-bar-animated");
+		$(modalBody).html(data).css("color", "red");
 		modalAddClose();
 	}, false);
 
@@ -1865,6 +1890,62 @@ function modalConstructor(type, params) {
 					} else if (action == 3) {
 						espFlashGitWait();
 					}
+				}
+			}).appendTo(modalBtns);
+			break;
+		case "flashZBFile":
+			$.get(apiLink + api.actions.API_CMD + "&cmd=" + api.commands.CMD_DNS_CHECK);
+			$(headerText).text(i18next.t('md.zb.ot')).css("color", "red");
+			$(modalBody).html(i18next.t("md.esp.fu.lfm"));
+			$("<div>", {
+				text: i18next.t("md.esp.fu.wm"),
+				class: "my-1 text-sm-center text-danger"
+			}).appendTo(modalBody);
+
+			modalAddCancel();
+			$('<button>', {
+				type: "button",
+				"class": "btn btn-primary",
+				text: i18next.t('c.sure'),
+				title: i18next.t("md.esp.fu.wm"),
+				click: function () {
+					$(modalBtns).html("");
+					modalAddSpiner();
+					$(modalBody).html("");
+					$("<div>", {
+						id: "zbFlshPgsTxt",
+						text: i18next.t("md.esp.fu.wdm"),
+						class: "mb-2 text-sm-center"
+					}).appendTo(modalBody);
+					$("<div>", {
+						"class": "progress",
+						append: $("<div>", {
+							"class": "progress-bar progress-bar-striped progress-bar-animated",
+							id: "zbFlshPrgs",
+							style: "width: 0%; background-color: #0495ce"
+						})
+					}).appendTo(modalBody);
+					reconnectEvents();
+					$.ajax({
+						url: "/updateZB",
+						type: "POST",
+						data: params,
+						contentType: false,
+						processData: false,
+						xhr: function () {
+							return new window.XMLHttpRequest();
+						},
+						success: function (data, textStatus, jqXHR) {
+							console.log("Upload success!");
+						},
+						error: function (jqXHR, textStatus, errorThrown) {
+							console.log("Upload error:", errorThrown);
+							$("#zbFlshPgsTxt").html("Upload failed: " + errorThrown).css("color", "red");
+							$(".progress").addClass(classHide);
+							$(modalBtns).html("");
+							modalAddClose();
+						}
+					});
 				}
 			}).appendTo(modalBtns);
 			break;
@@ -2694,34 +2775,26 @@ function handleClicks() {
 		modalConstructor("flashZB");
 	});
 
+	// 加载并显示当前Zigbee芯片型号
+	function loadZigbeeChipModel() {
+		$.get(apiLink + api.actions.API_GET_PARAM + "&param=zbHwVer", function (chipModel) {
+			if (chipModel && chipModel.length > 0) {
+				$("#zb-chip-model").text(chipModel);
+				$("#zb-chip-hint").show();
+			}
+		}).fail(function () {
+			// 如果获取失败，隐藏提示
+			$("#zb-chip-hint").hide();
+		});
+	}
+
+	// 页面加载时获取芯片型号
+	loadZigbeeChipModel();
+
 	$(document).on('submit', '#upload_form_zb', function (e) {
 		e.preventDefault();
 		var formData = new FormData(this);
-		/*ZBfwStartEvents(), $.ajax({
-			url: "/updateZB",
-			type: "POST",
-			data: formData,
-			contentType: false,
-			processData: false,
-			xhr: function () {
-				var xhr = new window.XMLHttpRequest();
-				xhr.upload.addEventListener("progress", function (event) {
-					if (event.lengthComputable) {
-						var percentComplete = event.loaded / event.total;
-						$("#prg_zb").html("upload: " + Math.round(100 * percentComplete) + "%");
-						$("#bar_zb").css("width", Math.round(100 * percentComplete) + "%");
-					}
-				}, false);
-				return xhr;
-			},
-			success: function (data, textStatus) {
-				console.log("success!"), $("#prg_zb").html("Upload completed! <br>Start validating...");
-				$("#bar_zb").css("width", "0%");
-			},
-			error: function (xhr, textStatus, errorThrown) {
-				console.log("Error:", errorThrown);
-			}
-		});*/
+		modalConstructor("flashZBFile", formData);
 	});
 
 	var lastEscTime = 0;

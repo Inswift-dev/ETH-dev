@@ -288,20 +288,20 @@ void flashZbUrl(String url)
                 systemCfg.zbRole = UNDEFINED;
             }
             zbRole = "";
-            systemCfg.zbSaveinfo = false;
+            // systemCfg.zbSaveinfo = false;
             saveSystemConfig(systemCfg);
         }
         else
         {
             LOGW("URL error");
         }
-        if (systemCfg.zbRole == COORDINATOR)
-        {
-            zbFwCheck();
-            // zbLedToggle();
-            // delay(1000);
-            // zbLedToggle();
-        }
+        // if (systemCfg.zbRole == COORDINATOR)
+        // {
+        //     zbFwCheck();
+        //     // zbLedToggle();
+        //     // delay(1000);
+        //     // zbLedToggle();
+        // }
         sendEvent(tagZB_FW_file, eventLen, String(systemCfg.zbFw));
         delay(500);
         restartDevice();
@@ -813,46 +813,507 @@ bool eraseWriteZbUrl(const char *url, std::function<void(float)> progressShow, C
 
 #include <FS.h>
 #include <LittleFS.h>
-/*
+
+String extractChipModelFromFilename(const char *filePath)
+{
+    String fileName = String(filePath);
+    
+    // 从路径中提取文件名
+    int lastSlash = fileName.lastIndexOf('/');
+    if (lastSlash >= 0)
+    {
+        fileName = fileName.substring(lastSlash + 1);
+    }
+    
+    // 转换为大写以便比较
+    fileName.toUpperCase();
+    
+    // 检查常见的芯片型号模式
+    // CC1352P7 和 CC2652P7 都映射到 CC2652P7
+    if (fileName.indexOf("CC2652P7") >= 0 || fileName.indexOf("CC1352P7") >= 0)
+    {
+        return "CC2652P7";
+    }
+    // CC1352P2 和 CC2652P2 都映射到 CC2652P2
+    else if (fileName.indexOf("CC2652P2") >= 0 || fileName.indexOf("CC1352P2") >= 0)
+    {
+        return "CC2652P2";
+    }
+    else if (fileName.indexOf("CC2652RB") >= 0)
+    {
+        return "CC2652RB";
+    }
+    else if (fileName.indexOf("CC2652") >= 0 || fileName.indexOf("CC1352") >= 0)
+    {
+        // 如果只有CC2652或CC1352，尝试更精确的匹配
+        // 检查是否有P2或P7的明确标识
+        if (fileName.indexOf("P2") >= 0)
+        {
+            return "CC2652P2";
+        }
+        else if (fileName.indexOf("P7") >= 0)
+        {
+            return "CC2652P7";
+        }
+        // 如果没有明确标识，返回通用CC2652
+        return "CC2652";
+    }
+    
+    // 如果无法从文件名提取，返回空字符串
+    return "";
+}
+
+bool validateChipModel(const char *filePath, const char *currentChipModel)
+{
+    String firmwareChipModel = extractChipModelFromFilename(filePath);
+    
+    // 检查是否无法获取当前芯片型号
+    bool currentChipUnknown = (!currentChipModel || strlen(currentChipModel) == 0);
+    
+    // 情况1：如果无法检测芯片型号，但固件文件名明确，允许升级
+    if (currentChipUnknown && firmwareChipModel.length() > 0)
+    {
+        LOGW("Cannot detect current chip model, but firmware filename contains chip model: %s, allowing upgrade", firmwareChipModel.c_str());
+        return true;
+    }
+    
+    // 情况2：如果固件文件名也不包含芯片型号，不允许升级
+    if (firmwareChipModel.length() == 0)
+    {
+        if (currentChipUnknown)
+        {
+            LOGW("Cannot detect current chip model and cannot extract chip model from filename, blocking upgrade");
+        }
+        else
+        {
+            LOGW("Cannot extract chip model from filename, blocking upgrade");
+        }
+        return false;
+    }
+    
+    // 情况3：如果两者都有值，进行严格的匹配校验
+    String currentChip = String(currentChipModel);
+    currentChip.toUpperCase();
+    
+    // 精确匹配（主要检查）
+    if (firmwareChipModel == currentChip)
+    {
+        return true;
+    }
+    
+    // 处理 CC2652P2 的变体（launchpad/other）
+    // 当前芯片是 CC2652P2 的变体，固件是 CC2652P2
+    if (currentChip.indexOf("CC2652P2") >= 0 && firmwareChipModel == "CC2652P2")
+    {
+        return true;
+    }
+    // 当前芯片是 CC2652P2，固件是 CC2652P2 的变体
+    if (currentChip == "CC2652P2" && firmwareChipModel.indexOf("CC2652P2") >= 0)
+    {
+        return true;
+    }
+    
+    // 处理 CC2652P7 的变体（如果有的话）
+    if (currentChip.indexOf("CC2652P7") >= 0 && firmwareChipModel == "CC2652P7")
+    {
+        return true;
+    }
+    if (currentChip == "CC2652P7" && firmwareChipModel.indexOf("CC2652P7") >= 0)
+    {
+        return true;
+    }
+    
+    // 通用 CC2652 固件可以用于 P2 或 P7（向后兼容）
+    // 但 P2 和 P7 的固件不能互换
+    if (firmwareChipModel == "CC2652" && (currentChip.indexOf("CC2652P2") >= 0 || currentChip.indexOf("CC2652P7") >= 0))
+    {
+        LOGW("Firmware chip model is generic CC2652, allowing upgrade");
+        return true;
+    }
+    
+    // 其他情况都不允许（包括 P2 和 P7 互相升级）
+    return false;
+}
+
 bool eraseWriteZbFile(const char *filePath, std::function<void(float)> progressShow, CCTools &CCTool)
 {
     File file = LittleFS.open(filePath, "r");
     if (!file)
     {
         char buffer[100];
-        snprintf(buffer, sizeof(buffer), "Failed to open file: %s\n", filePath);
+        snprintf(buffer, sizeof(buffer), "Failed to open file: %s", filePath);
         printLogMsg(buffer);
         return false;
     }
 
-    CCTool.eraseFlash();
-    printLogMsg("Erase completed!");
-
     int totalSize = file.size();
-
-    if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+    if (totalSize <= 0)
     {
+        printLogMsg("Invalid file size");
         file.close();
         return false;
     }
 
-    byte buffer[CCTool.TRANSFER_SIZE];
+    // 擦除Flash
+    if (!CCTool.eraseFlash())
+    {
+        printLogMsg("Failed to erase flash");
+        file.close();
+        return false;
+    }
+    sendEvent(tagZB_FW_info, 11, String("erase"));
+    printLogMsg("Erase completed!");
+
+    // 初始化Flash写入
+    if (!CCTool.beginFlash(BEGIN_ZB_ADDR, totalSize))
+    {
+        printLogMsg("Error initializing flash process");
+        file.close();
+        return false;
+    }
+    printLogMsg("Begin flash");
+
+    // 使用静态缓冲区，避免在栈上分配大缓冲区
+    static byte flashBuffer[CCTools::TRANSFER_SIZE];
     int loadedSize = 0;
+    static int callCounter = 0;
+    static int webServerCallCounter = 0;
 
     while (file.available() && loadedSize < totalSize)
     {
+        // 检查内存
+        size_t freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+        if (freeHeap < 10000)
+        {
+            LOGW("Critical low memory during flash: %d bytes, aborting", freeHeap);
+            printLogMsg("Flash failed: Insufficient memory");
+            sendEvent(tagZB_FW_err, 11, String("Insufficient memory"));
+            webServerHandleClient();
+            delay(100);
+            webServerHandleClient();
+            file.close();
+            CCTool.restart();
+            return false;
+        }
+
         size_t size = file.available();
-        int c = file.readBytes(reinterpret_cast<char *>(buffer), std::min(size, sizeof(buffer)));
-        // printBufferAsHex(buffer, c);
-        CCTool.processFlash(buffer, c);
+        int c = file.readBytes(reinterpret_cast<char *>(flashBuffer), std::min(size, sizeof(flashBuffer)));
+        
+        if (c <= 0)
+        {
+            printLogMsg("Failed to read data from file");
+            break;
+        }
+
+        if (!CCTool.processFlash(flashBuffer, c))
+        {
+            printLogMsg("Failed to process flash data");
+            file.close();
+            CCTool.restart();
+            return false;
+        }
+
         loadedSize += c;
         float percent = static_cast<float>(loadedSize) / totalSize * 100.0f;
         progressShow(percent);
-        delay(1); // Yield to allow other processes
+
+        esp_task_wdt_reset(); // Reset watchdog
+        delay(10); // Yield to allow other processes
+
+        callCounter++;
+        webServerCallCounter++;
+
+        // 定期检查内存（每100次循环）
+        if (callCounter % 100 == 0)
+        {
+            freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+            if (freeHeap < 10000)
+            {
+                LOGW("Critical low memory during flash: %d bytes, aborting", freeHeap);
+                printLogMsg("Flash failed: Insufficient memory");
+                sendEvent(tagZB_FW_err, 11, String("Insufficient memory"));
+                webServerHandleClient();
+                delay(100);
+                webServerHandleClient();
+                file.close();
+                CCTool.restart();
+                return false;
+            }
+            callCounter = 0;
+        }
+
+        // 定期调用webServerHandleClient（每50次循环）
+        if (webServerCallCounter % 50 == 0)
+        {
+            webServerHandleClient();
+            webServerCallCounter = 0;
+        }
     }
 
     file.close();
     CCTool.restart();
-    return true;
+    
+    if (loadedSize >= totalSize)
+    {
+        return true;
+    }
+    else
+    {
+        printLogMsg("Flash incomplete");
+        return false;
+    }
 }
-*/
+
+void flashZbFile(const char *filePath, const char *originalFilename)
+{
+    // 校验芯片型号 - 使用原始文件名进行校验
+    const char *filenameForValidation = (originalFilename && strlen(originalFilename) > 0) ? originalFilename : filePath;
+    const char *currentChipModel = CCTool.chip.hwRev.c_str();
+    if (strlen(currentChipModel) == 0)
+    {
+        // 如果当前芯片型号未知，使用保存的型号
+        currentChipModel = systemCfg.zbHw;
+    }
+    
+    LOGD("Validating chip model - filePath: %s, originalFilename: %s, currentChip: %s", 
+         filePath, originalFilename ? originalFilename : "null", currentChipModel);
+    
+    if (!validateChipModel(filenameForValidation, currentChipModel))
+    {
+        String firmwareChipModel = extractChipModelFromFilename(filenameForValidation);
+        char errorMsg[256];
+        snprintf(errorMsg, sizeof(errorMsg), 
+                 "Chip model mismatch! Current: %s, Firmware: %s", 
+                 currentChipModel, firmwareChipModel.c_str());
+        
+        printLogMsg(errorMsg);
+        LOGD("Chip model validation failed: %s", errorMsg);
+        
+        // 先发送错误状态信息，让前端知道升级失败
+        sendEvent(tagZB_FW_info, 11, String("error"));
+        webServerHandleClient();
+        delay(50);
+        
+        // 发送格式化的错误消息，前端可以解析显示
+        String errorEvent = String("Chip model mismatch: Current=") + String(currentChipModel) + 
+                          String(", Firmware=") + firmwareChipModel;
+        sendEvent(tagZB_FW_err, 11, errorEvent);
+        
+        // 多次处理 Web 服务器，确保事件被发送到前端
+        for (int i = 0; i < 10; i++)
+        {
+            webServerHandleClient();
+            delay(50);
+        }
+        
+        vars.zbFlashing = false;
+        ledControl.modeLED.mode = LED_OFF;
+        return;
+    }
+    
+    ledControl.modeLED.mode = LED_BLINK_3Hz;
+    vars.zbFlashing = true;
+
+    Serial2.updateBaudRate(500000);
+
+    freeHeapPrint();
+    delay(250);
+    
+    // 条件性停止 WiFi
+    if (networkCfg.wifiEnable)
+    {
+        if (vars.connectedEther)
+        {
+            LOGD("Both Ethernet and WiFi connected, stopping WiFi to free memory");
+            stopWifi();
+        }
+        else
+        {
+            LOGD("Only WiFi connected, keeping WiFi for web server");
+        }
+    }
+    
+    if (mqttCfg.enable)
+    {
+        mqttDisconnectCleanup();
+    }
+    
+    // 清理内存
+    heap_caps_free(NULL);
+    
+    freeHeapPrint();
+    delay(250);
+
+    float last_percent = 0;
+
+    const uint8_t eventLen = 11;
+    static char percentStr[16];
+
+    auto progressShow = [&last_percent](float percent) mutable
+    {
+        // 每 5% 更新一次，减少 sendEvent 调用频率
+        if ((percent - last_percent) > 5.0 || percent < 0.1 || percent == 100)
+        {
+            LOGI("%.2f%%", percent);
+            snprintf(percentStr, sizeof(percentStr), "%.2f", percent);
+            sendEvent(tagZB_FW_prgs, eventLen, String(percentStr));
+            last_percent = percent;
+        }
+    };
+
+    printLogMsg("Start Zigbee flashing from file");
+    sendEvent(tagZB_FW_info, eventLen, String("start"));
+
+    char logMsg[256];
+    snprintf(logMsg, sizeof(logMsg), "ZB flash from file: %s", filePath);
+    printLogMsg(logMsg);
+
+    sendEvent(tagZB_FW_file, eventLen, String(filePath));
+
+    if (eraseWriteZbFile(filePath, progressShow, CCTool))
+    {
+        sendEvent(tagZB_FW_info, eventLen, String("finish"));
+        printLogMsg("Flashed successfully");
+        
+        // 从文件名提取设备类型和设置波特率
+        String filenameForExtraction = (originalFilename && strlen(originalFilename) > 0) ? String(originalFilename) : String(filePath);
+        String filenameUpper = filenameForExtraction;
+        filenameUpper.toUpperCase();  // 转换为大写以便不区分大小写匹配
+        
+        // 提取设备类型（兼容大小写）
+        bool deviceTypeDetected = false;
+        
+        if (filenameUpper.indexOf("COORDINATOR") >= 0)
+        {
+            systemCfg.zbRole = COORDINATOR;
+            systemCfg.serialSpeed = 115200;  // coordinator默认115200
+            deviceTypeDetected = true;
+            LOGD("Detected device type: COORDINATOR, baud rate: 115200");
+        }
+        else if (filenameUpper.indexOf("ROUTER") >= 0)
+        {
+            systemCfg.zbRole = ROUTER;
+            systemCfg.serialSpeed = 115200;  // router默认115200
+            deviceTypeDetected = true;
+            LOGD("Detected device type: ROUTER, baud rate: 115200");
+        }
+        else if (filenameUpper.indexOf("THREAD") >= 0 || filenameUpper.indexOf("_RCP_") >= 0 || filenameUpper.indexOf("_RCP.") >= 0)
+        {
+            // thread和rcp都映射到OPENTHREAD，波特率为460800
+            systemCfg.zbRole = OPENTHREAD;
+            systemCfg.serialSpeed = 460800;  // thread/rcp波特率为460800
+            deviceTypeDetected = true;
+            LOGD("Detected device type: OPENTHREAD (thread/rcp), baud rate: 460800");
+        }
+        
+        if (!deviceTypeDetected)
+        {
+            // 如果无法识别设备类型，保持当前设置
+            LOGW("Cannot detect device type from filename: %s, keeping current settings", filenameForExtraction.c_str());
+        }
+        
+        Serial2.updateBaudRate(systemCfg.serialSpeed);
+
+        // 尝试从文件名提取固件版本信息（最后一段的日期）
+        // 使用 originalFilename 而不是 filePath，因为 filePath 是固定路径 /fw.hex
+        // const char *filenameForExtraction = (originalFilename && strlen(originalFilename) > 0) ? originalFilename : filePath;
+        String filePathStr = filenameForExtraction;
+        int lineIndex = filePathStr.lastIndexOf("_");
+        int binIndex = filePathStr.lastIndexOf(".bin");
+        int hexIndex = filePathStr.lastIndexOf(".hex");
+        int extIndex = (binIndex > hexIndex) ? binIndex : hexIndex;
+
+        if (lineIndex > -1 && extIndex > -1 && extIndex > lineIndex)
+        {
+            String zbFw = filePathStr.substring(lineIndex + 1, extIndex);
+            
+            // 验证是否为日期格式（8位数字，如 20250403）
+            bool isValidDate = (zbFw.length() == 8);
+            if (isValidDate)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    if (!isdigit(zbFw.charAt(i)))
+                    {
+                        isValidDate = false;
+                        break;
+                    }
+                }
+            }
+            
+            if (isValidDate)
+            {
+                strncpy(systemCfg.zbFw, zbFw.c_str(), sizeof(systemCfg.zbFw) - 1);
+                systemCfg.zbFw[sizeof(systemCfg.zbFw) - 1] = '\0';
+                LOGW("Extracted firmware version from filename: %s", systemCfg.zbFw);
+            }
+            else
+            {
+                // 如果不是日期格式，版本为空
+                systemCfg.zbFw[0] = '\0';
+                LOGW("No valid date found in filename, version set to empty");
+            }
+        }
+        else
+        {
+            // 如果无法从文件名提取，版本为空
+            systemCfg.zbFw[0] = '\0';
+            LOGW("Cannot extract version from filename, version set to empty");
+        }
+
+        // 保存配置（包括设备类型和波特率）
+        // systemCfg.zbSaveinfo = false;
+        saveSystemConfig(systemCfg);
+
+        // if (systemCfg.zbRole == COORDINATOR)
+        // {
+        //     zbFwCheck();
+        // }
+        sendEvent(tagZB_FW_file, eventLen, String(systemCfg.zbFw));
+        
+        // 删除固件文件以释放文件系统空间
+        if (LittleFS.exists(filePath))
+        {
+            if (LittleFS.remove(filePath))
+            {
+                LOGD("Firmware file deleted: %s", filePath);
+                printLogMsg("Firmware file deleted");
+            }
+            else
+            {
+                LOGW("Failed to delete firmware file: %s", filePath);
+            }
+        }
+        
+        delay(500);
+        restartDevice();
+    }
+    else
+    {
+        Serial2.updateBaudRate(systemCfg.serialSpeed);
+        printLogMsg("Failed to flash Zigbee");
+        
+        // 发送错误事件
+        sendEvent(tagZB_FW_err, eventLen, String("Failed!"));
+        
+        // 升级失败时也删除文件，避免占用空间
+        if (LittleFS.exists(filePath))
+        {
+            if (LittleFS.remove(filePath))
+            {
+                LOGD("Firmware file deleted after failure: %s", filePath);
+            }
+        }
+        
+        // 立即处理 Web 服务器，确保事件被发送到前端
+        webServerHandleClient();
+        delay(100);
+        webServerHandleClient();
+    }
+    ledControl.modeLED.mode = LED_OFF;
+    vars.zbFlashing = false;
+    if (mqttCfg.enable && !vars.mqttConn)
+    {
+        connectToMqtt();
+    }
+}

@@ -275,7 +275,8 @@
       "efu": "ESP32 manual flashing",
       "cf": "Select firmware file...",
       "ilfg": "Install latest",
-      "zu": "Zigbee update",
+      "zu": "Zigbee local upgrade",
+      "cm": "Current chip model",
       "saf": "Show available...",
       "zgu": "Zigbee",
       "eznr": "Erase NVRAM"
@@ -427,7 +428,8 @@
         "fn": "The firmware was successfully installed!",
         "nv": "New version: {{ver}}",
         "st": "CC2652 flash is starting...",
-        "er": "Erase finished"
+        "er": "Erase finished",
+        "cmm": "Chip model mismatch! Current: {{current}}, Firmware: {{firmware}}"
       }
     }
   },

@@ -101,11 +101,12 @@
     },
     "zg": {
       "fu": {
-        "f": "Va flasher : {{file}}",
+        "f": "Va flasher : {{file}}",
         "fn": "Flashé avec succès !",
-        "nv": "Nouvelle version : {{ver}}",
+        "nv": "Nouvelle version : {{ver}}",
         "st": "Démarrage du flash CC2652...",
-        "er": "Effacement terminé"
+        "er": "Effacement terminé",
+        "cmm": "Modèle de puce incompatible ! Actuel : {{current}}, Firmware : {{firmware}}"
       }
     }
   },
@@ -349,7 +350,8 @@
       "sc": "Controle du système",
       "usb": "USB",
       "zb": "Zigbee",
-      "zu": "Mise à jour Zigbee (en développement)",
+      "zu": "Mise à jour Zigbee locale",
+      "cm": "Modèle de puce actuel",
       "saf": "Afficher les firmwares disponibles",
       "zgu": "Mise à jour Git CC2652",
       "eznr": "Effacer la NVRAM"
